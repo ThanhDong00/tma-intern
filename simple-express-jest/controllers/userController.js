@@ -50,16 +50,7 @@ const userController = {
       const newUser = await userService.createUser(req.body);
       res.status(201).json(newUser);
     } catch (error) {
-      console.error("Error creating user:", error);
-      // Xử lý lỗi khi username hoặc email đã tồn tại
-      if (error instanceof SequelizeUniqueConstraintError) {
-        return res
-          .status(400)
-          .json({
-            message: "Username or email already exists.",
-            fields: error.fields,
-          });
-      }
+      console.error("Error creating user:", error.message);
       // Xử lý lỗi validation (ví dụ: trường rỗng, định dạng sai)
       if (error instanceof SequelizeValidationError) {
         const errors = error.errors.map((err) => ({
@@ -90,12 +81,10 @@ const userController = {
     } catch (error) {
       console.error(`Error updating user with ID ${req.params.id}:`, error);
       if (error instanceof SequelizeUniqueConstraintError) {
-        return res
-          .status(400)
-          .json({
-            message: "Username or email already exists.",
-            fields: error.fields,
-          });
+        return res.status(400).json({
+          message: "Username or email already exists.",
+          fields: error.fields,
+        });
       }
       if (error instanceof SequelizeValidationError) {
         const errors = error.errors.map((err) => ({

@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { User, Post } = require("../models/index.js");
 
 const userService = {
@@ -38,6 +39,16 @@ const userService = {
    * @returns {Promise<User>} Đối tượng người dùng vừa được tạo.
    */
   async createUser(userData) {
+    // Kiểm tra xem username hoặc email đã tồn tại chưa
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [{ username: userData.username }, { email: userData.email }],
+      },
+    });
+    if (existingUser) {
+      throw new Error("Username or email already exists.");
+    }
+
     return User.create(userData);
   },
 

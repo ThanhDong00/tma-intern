@@ -4,8 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest ",
-    "test:unit": "jest --detectOpenHandles --forceExit tests/unit",
+    "test:unit": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit tests/unit",
     "test:integration": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit tests/integration",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage",
     "start": "nodemon index.js"
   },
   "keywords": [],

@@ -93,6 +93,25 @@ describe("User Service", () => {
     expect(User.create).toHaveBeenCalledWith(newUser);
   });
 
+  test("should throw an error if username or email already exists", async () => {
+    const newUser = {
+      username: "user1",
+      email: "user1@gmail.com",
+    };
+
+    User.findOne.mockResolvedValue(mockUsers[0]);
+    await expect(userService.createUser(newUser)).rejects.toThrow(
+      "Username or email already exists."
+    );
+    expect(User.findOne).toHaveBeenCalledWith({
+      where: { username: newUser.username },
+    });
+    expect(User.findOne).toHaveBeenCalledWith({
+      where: { email: newUser.email },
+    });
+    expect(User.create).not.toHaveBeenCalled();
+  });
+
   // PUT /api/users/:id
   test("should update a user", async () => {
     const userId = 1;
@@ -109,5 +128,37 @@ describe("User Service", () => {
 
     expect(User.findByPk).toHaveBeenCalledWith(1);
     expect(existingUser.update).toHaveBeenCalledWith(updatedData);
+  });
+
+  test("should return null if user to update not found", async () => {
+    const userId = 999;
+    User.findByPk.mockResolvedValue(null);
+
+    const updatedUser = await userService.updateUser(userId, {});
+    expect(updatedUser).toBeNull();
+    expect(User.findByPk).toHaveBeenCalledWith(userId);
+  });
+
+  // DELETE /api/users/:id
+  test("should delete a user", async () => {
+    const userId = 1;
+    const existingUser = {
+      id: 1,
+      destroy: jest.fn(),
+    };
+    User.findByPk.mockResolvedValue(existingUser);
+
+    await userService.deleteUser(userId);
+    expect(User.findByPk).toHaveBeenCalledWith(userId);
+    expect(existingUser.destroy).toHaveBeenCalled();
+  });
+
+  test("should return false if user to delete not found", async () => {
+    const userId = 999;
+    User.findByPk.mockResolvedValue(null);
+
+    const result = await userService.deleteUser(userId);
+    expect(result).toBe(false);
+    expect(User.findByPk).toHaveBeenCalledWith(userId);
   });
 });

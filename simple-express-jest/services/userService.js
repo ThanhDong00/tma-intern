@@ -40,11 +40,20 @@ const userService = {
    */
   async createUser(userData) {
     // Kiểm tra xem username hoặc email đã tồn tại chưa
-    const existingUser = await User.findOne({
+    const existingUsername = await User.findOne({
       where: {
-        [Op.or]: [{ username: userData.username }, { email: userData.email }],
+        username: userData.username,
       },
     });
+
+    const existingEmail = await User.findOne({
+      where: {
+        email: userData.email,
+      },
+    });
+
+    const existingUser = existingUsername || existingEmail;
+
     if (existingUser) {
       throw new Error("Username or email already exists.");
     }
